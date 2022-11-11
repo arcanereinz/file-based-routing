@@ -1,6 +1,6 @@
 <br>
 <p align="center">
-  <a href="https://rendertemplate.vercel.app" target="_blank" rel="noopener noreferrer">
+  <a href="https://omarelhawary.me/blog/file-based-routing-with-react-router" target="_blank" rel="noopener noreferrer">
     <img src="./public/assets/icons/logo.svg" alt="Render · Opinionated React Template" width="120"/>
   </a>
 </p>

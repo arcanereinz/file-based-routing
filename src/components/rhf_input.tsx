@@ -1,5 +1,11 @@
 import { FC } from 'react'
-import { Controller, FieldValues, Path, PathValue, useFormContext } from 'react-hook-form'
+import {
+  Controller,
+  FieldValues,
+  Path,
+  PathValue,
+  useFormContext,
+} from 'react-hook-form'
 import {
   Checkbox,
   FormControlLabel,
@@ -62,11 +68,15 @@ export const RhfCheckbox = <T extends FieldValues>(
             defaultValue={false as PathValue<T, Path<T>>}
             control={control}
             rules={{ required: true }}
-            render={({ field: { value, ...field } }) => <Checkbox {...field} checked={!!value} />}
+            render={({ field: { value, ...field } }) => (
+              <Checkbox {...field} checked={!!value} />
+            )}
           />
         }
       />
-      <FormHelperText error={!!errors['terms']}>{(errors?.['terms']?.message as string) ?? ''}</FormHelperText>
+      <FormHelperText error={!!errors['terms']}>
+        {(errors?.['terms']?.message as string) ?? ''}
+      </FormHelperText>
     </FormGroup>
   )
 }

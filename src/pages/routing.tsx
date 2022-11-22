@@ -19,7 +19,10 @@ export default function Routing() {
         dynamic route
       </Link>
 
-      <Link className="p-2 hover:underline" to={`/catch/${Date.now()}/then/${Date.now()}`}>
+      <Link
+        className="p-2 hover:underline"
+        to={`/catch/${Date.now()}/then/${Date.now()}`}
+      >
         catch all routes
       </Link>
 
@@ -33,6 +36,10 @@ export default function Routing() {
 
       <Link className="p-2 hover:underline" to="/focus">
         focus example
+      </Link>
+
+      <Link className="p-2 hover:underline" to="/rhf_mui">
+        react-hook-form-mui example
       </Link>
     </>
   )

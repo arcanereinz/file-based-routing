@@ -44,14 +44,18 @@
   "dependencies": {
     "@emotion/styled": "^11.10.5",
     "@hookform/resolvers": "^2.9.10",
+    "@mui/icons-material": "^5.10.14",
     "@mui/lab": "^5.0.0-alpha.108",
     "@mui/material": "^5.10.14",
     "@mui/styled-engine": "^5.10.14",
+    "@mui/x-date-pickers": "^5.0.8",
     "@tanstack/react-location": "^3.7.4",
+    "date-fns": "^2.29.3",
     "generouted": "^1.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.39.5",
+    "react-hook-form-mui": "^5.10.2",
     "zod": "^3.19.1"
   },
   "devDependencies": {

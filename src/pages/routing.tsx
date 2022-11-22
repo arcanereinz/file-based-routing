@@ -26,6 +26,14 @@ export default function Routing() {
       <Link className="p-2 hover:underline" to="/nested">
         nested layouts
       </Link>
+
+      <Link className="p-2 hover:underline" to="/forms">
+        forms example
+      </Link>
+
+      <Link className="p-2 hover:underline" to="/focus">
+        focus example
+      </Link>
     </>
   )
 }

@@ -1,0 +1,126 @@
+.h1 {
+  font-weight: 500;
+  color: grey;
+  text-align: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgb(79, 98, 148);
+}
+
+.p {
+  color: #bf1650;
+}
+
+.p::before {
+  display: inline;
+  content: '⚠ ';
+}
+
+.input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  border-radius: 4px;
+  border: 1px solid grey;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.input:focus {
+  outline: 4px solid #ec5990;
+  outline-offset: 6px;
+}
+
+.label {
+  line-height: 2;
+  text-align: left;
+  display: block;
+  margin-bottom: 13px;
+  margin-top: 20px;
+  color: grey;
+  font-size: 14px;
+  font-weight: 200;
+}
+
+.button[type='submit'],
+.input[type='submit'] {
+  background: black;
+  color: white;
+  cursor: grab;
+  text-transform: uppercase;
+  border: none;
+  margin-top: 40px;
+  padding: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 10px;
+}
+
+.button[type='submit']:hover,
+.input[type='submit']:hover {
+  background: #bf1650;
+}
+
+.button[type='submit']:active,
+.input[type='button']:active,
+.input[type='submit']:active {
+  transition: 0.3s all;
+  transform: translateY(3px);
+  border: 1px solid transparent;
+  opacity: 0.8;
+}
+
+.input:disabled {
+  opacity: 0.4;
+}
+
+.input[type='button']:hover {
+  transition: 0.3s all;
+}
+
+.button[type='submit'],
+.input[type='button'],
+.input[type='submit'] {
+  -webkit-appearance: none;
+}
+
+.button[type='button'] {
+  display: block;
+  appearance: none;
+  background: #333;
+  color: white;
+  border: none;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border-radius: 4px;
+}
+
+.button {
+  display: block;
+  appearance: none;
+  margin-top: 40px;
+  border: 1px solid #333;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border-radius: 4px;
+}
+
+.legend {
+  color: #bf1650;
+  font-weight: bold;
+}
+
+.li {
+  color: grey;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  list-style-type: square;
+  padding: 10px;
+}
+
+.span {
+  color: grey;
+  font-style: italic;
+  font-size: 13px;
+}

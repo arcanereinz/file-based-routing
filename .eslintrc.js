@@ -14,6 +14,9 @@ module.exports = {
   ],
   plugins: ['@typescript-eslint', 'simple-import-sort'],
   rules: {
+    'jsx-a11y/click-events-have-key-events': 'warn',
+    'jsx-a11y/no-noninteractive-element-interactions': 'warn',
+    'jsx-a11y/label-has-associated-control': 'warn',
     'react/prop-types': 'off',
     'simple-import-sort/exports': 'warn',
     'simple-import-sort/imports': [

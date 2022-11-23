@@ -17,6 +17,7 @@ module.exports = {
     'jsx-a11y/click-events-have-key-events': 'warn',
     'jsx-a11y/no-noninteractive-element-interactions': 'warn',
     'jsx-a11y/label-has-associated-control': 'warn',
+    '@typescript-eslint/no-explicit-any': 'warn',
     'react/prop-types': 'off',
     'simple-import-sort/exports': 'warn',
     'simple-import-sort/imports': [
@@ -24,7 +25,9 @@ module.exports = {
       {
         groups: [
           ['^\\u0000'],
-          ['^(assert|constants|crypto|events|fs|path|querystring|stream|url)(/.*|$)'],
+          [
+            '^(assert|constants|crypto|events|fs|path|querystring|stream|url)(/.*|$)',
+          ],
           ['^(react|solid|vite)', '^@?\\w'],
           ['^(@)(/.*|$)'],
           ['^\\.'],
@@ -32,5 +35,5 @@ module.exports = {
       },
     ],
   },
-  ignorePatterns: ['*rc.js', '*.config.js', 'prerender.ts'],
+  ignorePatterns: ['*rc.js', '*.config.js', 'prerender.ts', 'jest.config.ts'],
 }

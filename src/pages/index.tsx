@@ -13,13 +13,25 @@ export default function Home() {
 
   return (
     <>
-      <img className="h-32 w-32" src="/assets/icons/logo.svg" alt={data.name} title={data.name} />
+      <img
+        className="h-32 w-32"
+        src="/assets/icons/logo.svg"
+        alt={data.name}
+        title={data.name}
+      />
       <em className="mt-4 text-gray-700">{data.description}</em>
-
+      {data.html_url}
+      {data.name}
+      {data.description}
+      {data.id}
       <ul className="mt-8">
         <li>
           <a href={data.html_url} target="_blank" rel="noopener noreferrer">
-            <img className="h-6 w-6 opacity-50 hover:opacity-80" src="/assets/icons/github.svg" alt="GitHub" />
+            <img
+              className="h-6 w-6 opacity-50 hover:opacity-80"
+              src="/assets/icons/github.svg"
+              alt="GitHub"
+            />
           </a>
         </li>
       </ul>

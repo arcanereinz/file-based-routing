@@ -2,6 +2,17 @@ import { defineConfig, splitVendorChunkPlugin as vendor } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
+  esbuild: {
+    exclude: ['**/*.test.{js,jsx,cjs,mjs,ts,tsx}'],
+  },
+  build: {
+    rollupOptions: {
+      external: /^.+\.test\.(js|jsx|cjs|mjs|ts|tsx)$/,
+    },
+  },
+  // optimizeDeps: {
+  //   exclude: ['**/*.test.*'],
+  // },
   server: {
     open: '/',
   },

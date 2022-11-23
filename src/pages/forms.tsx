@@ -5,11 +5,14 @@ import { LoadingButton } from '@mui/lab'
 import { Box, Typography } from '@mui/material'
 import z from 'zod'
 
-import { RhfCheckbox, RhfTextField } from '@/components/rhf_input'
+import { RhfCheckbox, RhfTextField } from '@/components/rhf-input'
 
 const registerSchema = z
   .object({
-    name: z.string().min(1, 'Name is required').max(32, 'Name must be less than 100 characters'),
+    name: z
+      .string()
+      .min(1, 'Name is required')
+      .max(32, 'Name must be less than 100 characters'),
     email: z.string(), //.min(1, 'Email is required').email('Email is invalid'),
     password: z.string(),
     //.min(1, 'Password is required')
@@ -54,7 +57,10 @@ export default function Forms() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errors])
 
-  const onSubmitHandler: SubmitHandler<RegisterInput> = async (values, event) => {
+  const onSubmitHandler: SubmitHandler<RegisterInput> = async (
+    values,
+    event
+  ) => {
     await new Promise((accept, reject) => setTimeout(() => accept(1), 1000))
     console.log('values', values)
   }
@@ -65,7 +71,12 @@ export default function Forms() {
         Register
       </Typography>
       <FormProvider {...methods}>
-        <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit(onSubmitHandler)}>
+        <Box
+          component="form"
+          noValidate
+          autoComplete="off"
+          onSubmit={handleSubmit(onSubmitHandler)}
+        >
           {!!errorsValues.length && (
             <fieldset>
               <ul className="mb-10">
@@ -85,9 +96,29 @@ export default function Forms() {
             </fieldset>
           )}
 
-          <RhfTextField name="name" required fullWidth label="Name" sx={{ mb: 2 }} />
-          <RhfTextField name="email" required fullWidth label="Email Address" type="email" sx={{ mb: 2 }} />
-          <RhfTextField name="password" required fullWidth label="Password" type="password" sx={{ mb: 2 }} />
+          <RhfTextField
+            name="name"
+            required
+            fullWidth
+            label="Name"
+            sx={{ mb: 2 }}
+          />
+          <RhfTextField
+            name="email"
+            required
+            fullWidth
+            label="Email Address"
+            type="email"
+            sx={{ mb: 2 }}
+          />
+          <RhfTextField
+            name="password"
+            required
+            fullWidth
+            label="Password"
+            type="password"
+            sx={{ mb: 2 }}
+          />
           <RhfTextField
             name="passwordConfirm"
             required
@@ -98,7 +129,11 @@ export default function Forms() {
           />
           <RhfCheckbox
             name="terms"
-            label={<Typography color={errors['terms'] ? 'error' : 'inherit'}>Accept Terms and Conditions</Typography>}
+            label={
+              <Typography color={errors['terms'] ? 'error' : 'inherit'}>
+                Accept Terms and Conditions
+              </Typography>
+            }
           />
 
           <LoadingButton

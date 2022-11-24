@@ -8,6 +8,8 @@ export const loader: LoaderFn<Route> = () => {
   return getRepo('render')
 }
 
+// console.log('import.meta', import.meta.env.VITE_API_KEY, import.meta.glob('**'))
+
 export default function Home() {
   const { data } = useMatch<Route>()
 

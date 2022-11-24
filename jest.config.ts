@@ -73,22 +73,6 @@ const config: Config.InitialOptions = {
 
   // A set of global variables that need to be available in all test environments
   // globals: {},
-  globals: {
-    'ts-jest': {
-      isolatedModules: true,
-      babelConfig: {
-        presets: [
-          [
-            'babel-preset-vite',
-            {
-              env: true,
-              glob: true,
-            },
-          ],
-        ],
-      },
-    },
-  },
 
   // The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
   // maxWorkers: "50%",
@@ -207,7 +191,27 @@ const config: Config.InitialOptions = {
 
   // A map from regular expressions to paths to transformers
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)?$': 'ts-jest',
+    // https://stackoverflow.com/questions/68656057/why-isnt-ts-jest-loading-my-custom-tsconfig-file
+    // must be exactly '^.+\\.tsx?$'
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        isolatedModules: true,
+        // module: 'esnext',
+        // tsconfig: './tsconfig.json',
+        babelConfig: {
+          presets: [
+            [
+              'babel-preset-vite',
+              {
+                env: true,
+                glob: true,
+              },
+            ],
+          ],
+        },
+      },
+    ],
   },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation

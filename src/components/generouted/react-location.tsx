@@ -1,6 +1,5 @@
 import { Fragment } from 'react'
 import {
-  createHashHistory,
   LoaderFn,
   Outlet,
   ReactLocation,
@@ -45,14 +44,15 @@ const regularRoutes = generateRegularRoutes<Route, () => Promise<Module>>(
 const App = preservedRoutes?.['_app'] || Fragment
 const NotFound = preservedRoutes?.['404'] || Fragment
 
-const location = new ReactLocation({ history: createHashHistory() })
+const location = new ReactLocation()
 const routes = [...regularRoutes, { path: '*', element: <NotFound /> }]
 
 export const Routes = (
-  props: Omit<RouterProps, 'children' | 'location' | 'routes'> = {}
+  props: Omit<RouterProps, 'children' | 'location' | 'routes'> &
+    Partial<Pick<RouterProps, 'location'>> = {}
 ) => {
   return (
-    <Router {...props} location={location} routes={routes}>
+    <Router routes={routes} location={location} {...props}>
       <App>
         <Outlet />
       </App>

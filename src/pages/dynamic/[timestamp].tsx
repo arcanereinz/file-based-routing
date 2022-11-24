@@ -1,4 +1,4 @@
-import { MakeGenerics, useMatch } from '@tanstack/react-location'
+import { MakeGenerics, Outlet, useMatch } from '@tanstack/react-location'
 
 import { Link } from '@/components'
 
@@ -14,6 +14,13 @@ export default function DynamicTimestamp() {
       <Link className="mt-4 p-2 hover:underline" to="/routing">
         ⟵
       </Link>
+      <Link
+        className="mt-4 p-2 hover:underline"
+        to={`/dynamic/${params.timestamp}/subtimestamp`}
+      >
+        ⟶
+      </Link>
+      <Outlet />
     </>
   )
 }

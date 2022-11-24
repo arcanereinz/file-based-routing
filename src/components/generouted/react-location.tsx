@@ -22,7 +22,7 @@ const PRESERVED = import.meta.glob<Module>('/src/pages/(_app|404).{jsx,tsx}', {
   eager: true,
 })
 const ROUTES = import.meta.glob<Module>([
-  '/src/pages/**/[\\w[]*.{jsx,tsx}',
+  '/src/pages/**/[\\w[(]*.{jsx,tsx}',
   '!**/(_app|404).*',
 ])
 

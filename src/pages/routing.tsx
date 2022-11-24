@@ -30,6 +30,10 @@ export default function Routing() {
         nested layouts
       </Link>
 
+      <Link className="p-2 hover:underline" to="/named_index">
+        named index
+      </Link>
+
       <Link className="p-2 hover:underline" to="/forms">
         forms example
       </Link>

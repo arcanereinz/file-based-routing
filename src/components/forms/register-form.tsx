@@ -1,6 +1,6 @@
-import React, { BaseSyntheticEvent } from 'react'
-import { useEffect, useMemo } from 'react'
-import { SubmitHandler, useForm, UseFormReturn } from 'react-hook-form'
+import React, { BaseSyntheticEvent, useMemo } from 'react'
+import { useEffect } from 'react'
+import { FieldErrorsImpl, useForm, UseFormReturn } from 'react-hook-form'
 import {
   DateFnsProvider,
   DateTimePickerElement,
@@ -47,16 +47,19 @@ const styles: Record<string, SxProps<Theme>> = {
 
 export function RegisterForm(props: {
   defaultValues: RegisterInput
+  setValues: React.Dispatch<React.SetStateAction<RegisterInput>>
   formContextRef: React.MutableRefObject<
     UseFormReturn<RegisterInput> | undefined
   >
   formSubmitHandlerRef: React.MutableRefObject<
     | ((
-        event?: BaseSyntheticEvent<object, any, any> | undefined
+        event?: BaseSyntheticEvent<RegisterInput, any, any> | undefined
       ) => Promise<void>)
     | undefined
   >
-  onSuccess: (values: RegisterInput) => void
+  onSubmit?: (values: RegisterInput) => Promise<void>
+  onSuccess?: (values: RegisterInput) => Promise<void>
+  onInvalid?: (errors: Partial<FieldErrorsImpl<RegisterInput>>) => Promise<void>
   className?: string
   hideSubmit?: boolean
 }) {
@@ -64,45 +67,43 @@ export function RegisterForm(props: {
     resolver: zodResolver(registerSchema),
     defaultValues: props.defaultValues,
   })
-  const { formState } = formContext
 
-  const errorsValues = useMemo(
-    () => Object.entries(formState.errors),
-    [formState.errors, formState.isValidating]
-  )
+  /**
+   * Update parent references
+   * NOTE: must destructure formContext since formState is not overridden but updated directly
+   */
+  const {
+    formState: {
+      errors,
+      isDirty,
+      isSubmitting,
+      isSubmitSuccessful,
+      isSubmitted,
+      isValid,
+    },
+  } = (props.formContextRef.current = formContext)
 
-  const submitHandler: SubmitHandler<RegisterInput> = async (
-    values,
-    _event
-  ) => {
-    console.log('submitHandler-values', values, formState, formState.isDirty)
-
-    /**
-     * wait for form to be successful then refresh parent
-     * @todo refactor to not use timeouts
-     */
-    // let tries = 0
-    // const interval = setInterval(() => {
-    //   if (formContext.formState.isSubmitSuccessful) {
-    //     props.onSuccess()
-    //     clearInterval(interval)
-    //   } else if (++tries >= 2) {
-    //     // clear after i try(s)
-    //     clearInterval(interval)
-    //   }
-    // }, 100)
-  }
-
-  // pass to parent
-  useEffect(() => {
-    props.formContextRef.current = formContext
-    props.formSubmitHandlerRef.current = formContext.handleSubmit(submitHandler)
-  }, [formContext])
-
-  console.log(
-    'RegisterForm-child',
-    props.formContextRef.current?.formState,
-    formContext.formState
+  /**
+   * Update parent references
+   * NOTE: references used to prevent recursive renderings
+   */
+  props.formSubmitHandlerRef.current = useMemo(
+    () =>
+      formContext.handleSubmit(
+        /**
+         * Call onSubmit when form altered
+         */
+        async (values) => {
+          isDirty && (await props.onSubmit?.(values))
+        },
+        /**
+         * Call onInvalid when form failed validation
+         */
+        async (errors) => {
+          await props.onInvalid?.(errors)
+        }
+      ),
+    [formContext, isDirty, props.onSubmit, props.onInvalid]
   )
 
   /**
@@ -110,39 +111,39 @@ export function RegisterForm(props: {
    * NOTE: do not put objects in dependencies or infinite recursion
    */
   useEffect(() => {
-    if (formState.isSubmitSuccessful) {
-      const submit = async () => {
-        console.log('RegisterForm-submit', formState)
-        if (formState.isDirty) {
-          await new Promise((accept, _reject) =>
-            setTimeout(() => accept(1), 1000)
-          )
-        }
-        props.onSuccess(formContext.getValues())
-        // formContext.reset()
-      }
-      submit()
+    if (isSubmitSuccessful) {
+      console.log('RegisterForm-submit', formContext.formState)
+      props.onSuccess?.(formContext.getValues())
+      // formContext.reset()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formState.isSubmitSuccessful, formState.isDirty])
+  }, [isSubmitSuccessful])
 
+  /**
+   * Update parent when submitting or editing
+   * NOTE: do not put objects in dependencies or infinite recursion
+   */
   useEffect(() => {
-    if (Object.keys(formState.errors).length) {
-      console.log('errors', formState.errors)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formState.errors])
+    props.setValues(formContext.getValues())
+  }, [isSubmitting, isDirty])
+
+  console.log(
+    'RegisterForm-child',
+    errors,
+    props.formContextRef.current?.formState,
+    formContext.formState
+  )
 
   return (
     <FormContainer
       // defaultValues={{ name: 'a' }}
       FormProps={{ className: clsx('flex flex-col', props.className) }}
       formContext={formContext}
-      handleSubmit={formContext.handleSubmit(submitHandler)}
+      handleSubmit={props.formSubmitHandlerRef.current}
     >
-      {formState.isSubmitted && !formState.isValid && (
+      {isSubmitted && !isValid && (
         <ul className="mb-10">
-          {errorsValues.map(
+          {Object.entries(errors).map(
             ([name, error]) =>
               error && (
                 <li
@@ -161,13 +162,13 @@ export function RegisterForm(props: {
         sx={styles.spacer}
         name="name"
         label="Name" /*required*/
-        disabled={formState.isSubmitting}
+        disabled={isSubmitting}
       />
       <DateFnsProvider>
         <DateTimePickerElement
           inputProps={{
             sx: styles.spacer,
-            disabled: formState.isSubmitting,
+            disabled: isSubmitting,
           }}
           name="datetime"
         />
@@ -177,7 +178,7 @@ export function RegisterForm(props: {
         sx={{ ...styles.spacer, minWidth: '10em' }}
         label="Required"
         name="drop"
-        disabled={formState.isSubmitting}
+        disabled={isSubmitting}
         options={[
           {
             id: '1',
@@ -193,11 +194,15 @@ export function RegisterForm(props: {
       {!props.hideSubmit && (
         <LoadingButton
           variant="contained"
-          fullWidth
           hidden={props.hideSubmit}
           type="submit"
-          loading={formState.isSubmitting}
-          sx={{ py: '0.8rem', mt: '1rem' }}
+          loading={isSubmitting}
+          sx={{
+            py: '0.5rem',
+            mt: '1rem',
+            width: 'fit-content',
+            alignSelf: 'end',
+          }}
         >
           Register
         </LoadingButton>

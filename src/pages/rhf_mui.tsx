@@ -1,6 +1,6 @@
 import React, { BaseSyntheticEvent, useState } from 'react'
 import { useMemo } from 'react'
-import { UseFormReturn } from 'react-hook-form'
+import { FieldErrorsImpl, UseFormReturn } from 'react-hook-form'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Step from '@mui/material/Step'
@@ -26,12 +26,33 @@ export default function HorizontalLinearStepper() {
     registerDefaultValues
   )
 
-  const successHandler = (values: RegisterInput) => {
-    if (formContextRef.current?.formState.isSubmitSuccessful) {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1)
-    }
-    setRegisterValues(values)
-    // setRefreshParent({})
+  const submitHandler = async (values: RegisterInput) => {
+    console.log(
+      'successHandler-values',
+      values,
+      formContextRef.current?.formState,
+      formContextRef.current?.formState.isDirty
+    )
+    await new Promise((accept, _reject) => setTimeout(() => accept(1), 1000))
+  }
+  const successHandler = async (values: RegisterInput) => {
+    console.log(
+      'successHandler-values',
+      values,
+      formContextRef.current?.formState,
+      formContextRef.current?.formState.isDirty
+    )
+    setActiveStep((prevActiveStep) => prevActiveStep + 1)
+  }
+  const invalidHandler = async (
+    values: Partial<FieldErrorsImpl<RegisterInput>>
+  ) => {
+    console.log(
+      'invalidHandler-values',
+      values,
+      formContextRef.current?.formState,
+      formContextRef.current?.formState.isDirty
+    )
   }
 
   const formContextRef = React.useRef<UseFormReturn<RegisterInput>>()
@@ -50,10 +71,13 @@ export default function HorizontalLinearStepper() {
           <RegisterForm
             className="w-[30rem]"
             defaultValues={registerValues}
+            setValues={setRegisterValues}
             formContextRef={formContextRef}
             formSubmitHandlerRef={formSubmitHandlerRef}
+            onSubmit={submitHandler}
             onSuccess={successHandler}
-            hideSubmit={true}
+            onInvalid={invalidHandler}
+            hideSubmit={false}
           />
         ),
       },
@@ -69,8 +93,10 @@ export default function HorizontalLinearStepper() {
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     // submit form
-    await formSubmitHandlerRef.current?.(event)
-    // return if errors
+    // NOTE: do not await this will slow down form submission
+    formSubmitHandlerRef.current?.(event)
+
+    // if no errors then continue
     if (
       formContextRef.current &&
       !Object.keys(formContextRef.current.formState.errors).length
@@ -80,12 +106,14 @@ export default function HorizontalLinearStepper() {
         newSkipped = new Set(newSkipped.values())
         newSkipped.delete(activeStep)
       }
-
       setSkipped(newSkipped)
+
+      // goto next if no component
+      if (!forms[activeStep]?.component) {
+        setActiveStep((prevActiveStep) => prevActiveStep + 1)
+      }
     }
   }
-
-  console.log('nang-parent', formContextRef.current?.formState)
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1)
@@ -107,8 +135,15 @@ export default function HorizontalLinearStepper() {
   }
 
   const handleReset = () => {
+    // formContextRef.current?.reset()
+    setRegisterValues(registerDefaultValues)
     setActiveStep(0)
   }
+
+  console.log(
+    'HorizontalLinearStepper-parent',
+    formContextRef.current?.formState
+  )
 
   return (
     <div className="w-[100%]">
@@ -145,11 +180,13 @@ export default function HorizontalLinearStepper() {
         </Paper>
       ) : (
         <Paper square elevation={0} sx={{ p: 3 }}>
-          <Typography variant="h6" component="h6" sx={{ mt: 2, mb: 1 }}>
-            <span>{forms[activeStep]?.stepName}&nbsp;</span>
-            <span className="text-sm">(Step {activeStep + 1})</span>
-          </Typography>
-          {forms[activeStep]?.component}
+          <article className="mx-auto w-fit">
+            <Typography variant="h6" component="h6" sx={{ mt: 2, mb: 1 }}>
+              <span>{forms[activeStep]?.stepName}&nbsp;</span>
+              <span className="text-sm">(Step {activeStep + 1})</span>
+            </Typography>
+            {forms[activeStep]?.component}
+          </article>
           <nav className="flex flex-row pt-2">
             <Button
               color="inherit"

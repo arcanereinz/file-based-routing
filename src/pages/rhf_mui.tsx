@@ -1,160 +1,179 @@
-import { useEffect, useMemo } from 'react'
-import { SubmitHandler, useForm } from 'react-hook-form'
+import React, { BaseSyntheticEvent, useState } from 'react'
+import { useMemo } from 'react'
+import { UseFormReturn } from 'react-hook-form'
+import Button from '@mui/material/Button'
+import Paper from '@mui/material/Paper'
+import Step from '@mui/material/Step'
+import StepLabel from '@mui/material/StepLabel'
+import Stepper from '@mui/material/Stepper'
+import Typography from '@mui/material/Typography'
+
 import {
-  DateFnsProvider,
-  DateTimePickerElement,
-  FormContainer,
-  SelectElement,
-  TextFieldElement,
-} from 'react-hook-form-mui'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { LoadingButton } from '@mui/lab'
-import { Box, SxProps, Theme, Typography } from '@mui/material'
-import z from 'zod'
+  registerDefaultValues,
+  RegisterForm,
+  RegisterInput,
+} from '@/components/forms/register-form'
 
-const registerSchema = z.object({
-  name: z.union([
-    z
-      .string()
-      .min(2, 'Name at least 2 characters')
-      .max(5, 'Name no more than 5 characters'),
-    z.string().length(0), // can be omitted
-  ]),
-  datetime: z.union([
-    z.date({ required_error: 'Date required' }),
-    z.undefined(),
-  ]),
-  drop: z.string().min(1, 'Drop required'),
-})
-
-type RegisterInput = z.TypeOf<typeof registerSchema>
-
-const styles: Record<string, SxProps<Theme>> = {
-  spacer: {
-    marginTop: '.5rem',
-    marginBottom: '.5rem',
-    '&:hover': {
-      backgroundColor: 'aliceblue',
-    },
-  },
+const steps = ['Select campaign settings', 'Create an ad group', 'Create an ad']
+const isStepOptional = (step: number) => {
+  return step === 1
 }
 
-export default function Forms() {
-  const formContext = useForm<RegisterInput>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      name: '',
-      datetime: undefined,
-      drop: '',
-    },
-  })
-  const { formState } = formContext
-
-  const errorsValues = useMemo(
-    () => Object.entries(formState.errors),
-    [formState.errors, formState.isValidating]
+export default function HorizontalLinearStepper() {
+  const [activeStep, setActiveStep] = useState(0)
+  const [skipped, setSkipped] = useState(new Set<number>())
+  const [registerValues, setRegisterValues] = useState<RegisterInput>(
+    registerDefaultValues
   )
 
-  useEffect(() => {
-    if (formState.isSubmitSuccessful) {
-      formContext.reset()
+  const successHandler = (values: RegisterInput) => {
+    if (formContextRef.current?.formState.isSubmitSuccessful) {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formState.isSubmitSuccessful])
+    setRegisterValues(values)
+    // setRefreshParent({})
+  }
 
-  useEffect(() => {
-    if (Object.keys(formState.errors).length) {
-      console.log('errors', formState.errors)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formState.errors])
+  const formContextRef = React.useRef<UseFormReturn<RegisterInput>>()
+  const formSubmitHandlerRef =
+    React.useRef<
+      (
+        event?: BaseSyntheticEvent<object, any, any> | undefined
+      ) => Promise<void>
+    >()
 
-  const onSubmitHandler: SubmitHandler<RegisterInput> = async (
-    values,
-    _event
+  const forms = useMemo(
+    () => [
+      {
+        stepName: 'Register',
+        component: (
+          <RegisterForm
+            className="w-[30rem]"
+            defaultValues={registerValues}
+            formContextRef={formContextRef}
+            formSubmitHandlerRef={formSubmitHandlerRef}
+            onSuccess={successHandler}
+            hideSubmit={true}
+          />
+        ),
+      },
+    ],
+    [registerValues]
+  )
+
+  const isStepSkipped = (step: number) => {
+    return skipped.has(step)
+  }
+
+  const handleNext = async (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
-    await new Promise((accept, _reject) => setTimeout(() => accept(1), 1000))
-    console.log('values', values)
+    // submit form
+    await formSubmitHandlerRef.current?.(event)
+    // return if errors
+    if (
+      formContextRef.current &&
+      !Object.keys(formContextRef.current.formState.errors).length
+    ) {
+      let newSkipped = skipped
+      if (isStepSkipped(activeStep)) {
+        newSkipped = new Set(newSkipped.values())
+        newSkipped.delete(activeStep)
+      }
+
+      setSkipped(newSkipped)
+    }
+  }
+
+  console.log('nang-parent', formContextRef.current?.formState)
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1)
+  }
+
+  const handleSkip = () => {
+    if (!isStepOptional(activeStep)) {
+      // You probably want to guard against something like this,
+      // it should never occur unless someone's actively trying to break something.
+      throw new Error("You can't skip a step that isn't optional.")
+    }
+
+    setActiveStep((prevActiveStep) => prevActiveStep + 1)
+    setSkipped((prevSkipped) => {
+      const newSkipped = new Set(prevSkipped.values())
+      newSkipped.add(activeStep)
+      return newSkipped
+    })
+  }
+
+  const handleReset = () => {
+    setActiveStep(0)
   }
 
   return (
-    <Box sx={{ maxWidth: '30rem' }}>
-      <Typography variant="h4" component="h1" sx={{ mb: '2rem' }}>
-        Register
-      </Typography>
-      <FormContainer
-        // defaultValues={{ name: 'a' }}
-        formContext={formContext}
-        handleSubmit={formContext.handleSubmit(onSubmitHandler)}
-      >
-        <article className="flex flex-col">
-          {!formState.isValid && (
-            <fieldset>
-              <ul className="mb-10">
-                {errorsValues.map(
-                  ([name, error]) =>
-                    error && (
-                      <li
-                        className="my-1 cursor-pointer text-rose-500 hover:underline"
-                        key={name}
-                        onClick={() => error.ref?.focus?.()}
-                      >
-                        {name}: {error.message}
-                      </li>
-                    )
-                )}
-              </ul>
-            </fieldset>
-          )}
-
-          <TextFieldElement
-            sx={styles.spacer}
-            name="name"
-            label="Name" /*required*/
-            disabled={formState.isSubmitting}
-          />
-          <DateFnsProvider>
-            <DateTimePickerElement
-              inputProps={{
-                sx: styles.spacer,
-                disabled: formState.isSubmitting,
-              }}
-              name="datetime"
-            />
-          </DateFnsProvider>
-
-          <SelectElement
-            sx={{ ...styles.spacer, minWidth: '10em' }}
-            label="Required"
-            name="drop"
-            disabled={formState.isSubmitting}
-            options={[
-              {
-                id: '1',
-                label: 'Label 1',
-              },
-              {
-                id: '2',
-                label: 'label 2',
-              },
-            ]}
-            // required
-          />
-          <LoadingButton
-            variant="contained"
-            fullWidth
-            type="submit"
-            loading={formState.isSubmitting}
-            sx={{ py: '0.8rem', mt: '1rem' }}
-          >
-            Register
-          </LoadingButton>
-        </article>
-      </FormContainer>
-    </Box>
+    <div className="w-[100%]">
+      <Stepper activeStep={activeStep}>
+        {steps.map((label, index) => {
+          const stepProps: { completed?: boolean } = {}
+          const labelProps: {
+            optional?: React.ReactNode
+          } = {}
+          if (isStepOptional(index)) {
+            labelProps.optional = (
+              <Typography variant="caption">Optional</Typography>
+            )
+          }
+          if (isStepSkipped(index)) {
+            stepProps.completed = false
+          }
+          return (
+            <Step key={label} {...stepProps}>
+              <StepLabel {...labelProps}>{label}</StepLabel>
+            </Step>
+          )
+        })}
+      </Stepper>
+      {activeStep === steps.length ? (
+        <Paper square elevation={0} sx={{ p: 3 }}>
+          <Typography sx={{ mt: 2, mb: 1 }}>
+            All steps completed - you&apos;re finished
+          </Typography>
+          <nav className="flex flex-row pt-2">
+            <p className="flex-auto" />
+            <Button onClick={handleReset}>Reset</Button>
+          </nav>
+        </Paper>
+      ) : (
+        <Paper square elevation={0} sx={{ p: 3 }}>
+          <Typography variant="h6" component="h6" sx={{ mt: 2, mb: 1 }}>
+            <span>{forms[activeStep]?.stepName}&nbsp;</span>
+            <span className="text-sm">(Step {activeStep + 1})</span>
+          </Typography>
+          {forms[activeStep]?.component}
+          <nav className="flex flex-row pt-2">
+            <Button
+              color="inherit"
+              disabled={activeStep === 0}
+              onClick={handleBack}
+              sx={{ mr: 1 }}
+            >
+              Back
+            </Button>
+            <p className="flex-auto" />
+            {isStepOptional(activeStep) && (
+              <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
+                Skip
+              </Button>
+            )}
+            <Button
+              onClick={handleNext}
+              disabled={!!formContextRef.current?.formState.isSubmitting}
+            >
+              {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+            </Button>
+          </nav>
+        </Paper>
+      )}
+    </div>
   )
-}
-
-function RhfMui() {
-  return <div></div>
 }

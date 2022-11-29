@@ -5,7 +5,7 @@ import { LoadingButton } from '@mui/lab'
 import { Box, Typography } from '@mui/material'
 import z from 'zod'
 
-import { RhfCheckbox, RhfTextField } from '@/components/rhf-input'
+import { RhfCheckbox, RhfTextField } from '@/components/forms/rhf-input'
 
 const registerSchema = z
   .object({
@@ -31,15 +31,15 @@ type RegisterInput = z.TypeOf<typeof registerSchema>
 export default function Forms() {
   const [loading, setLoading] = useState(false)
 
-  const methods = useForm<RegisterInput>({
+  const formContext = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
   })
 
   const {
     reset,
     handleSubmit,
-    formState: { isSubmitSuccessful, isSubmitting, errors },
-  } = methods
+    formState: { isSubmitSuccessful, isSubmitting, errors, isDirty },
+  } = formContext
 
   const errorsValues = useMemo(() => Object.entries(errors), [errors])
 
@@ -62,7 +62,7 @@ export default function Forms() {
     event
   ) => {
     await new Promise((accept, reject) => setTimeout(() => accept(1), 1000))
-    console.log('values', values)
+    console.log('values', values, isDirty)
   }
 
   return (
@@ -70,7 +70,7 @@ export default function Forms() {
       <Typography variant="h4" component="h1" sx={{ mb: '2rem' }}>
         Register
       </Typography>
-      <FormProvider {...methods}>
+      <FormProvider {...formContext}>
         <Box
           component="form"
           noValidate
